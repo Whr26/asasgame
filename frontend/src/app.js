@@ -52,6 +52,7 @@ const stages = [
   },
 ];
 
+
 const state = {
   playerName: "",
   difficulty: "beginner",
@@ -60,6 +61,11 @@ const state = {
   totalScore: 0,
   startedAt: null,
   finalStep: 0,
+
+  // full = تدريب كامل
+  // single = تدريب قسم واحد فقط
+  trainingMode: "full",
+  selectedStageIndex: null,
 };
 
 function getDifficultySettings() {
@@ -95,91 +101,166 @@ function getRequiredSuccess(stage = getCurrentStage()) {
 
 function renderHome() {
   app.innerHTML = `
-    <section class="min-h-screen flex items-center justify-center px-4 py-8">
-      <div class="w-full max-w-6xl">
+    <section class="min-h-screen px-4 py-8">
+      <div class="w-full max-w-7xl mx-auto">
         <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
+
           <div class="bg-gradient-to-l from-blue-950 via-blue-900 to-sky-700 text-white p-8 md:p-10">
-            <p class="text-sm md:text-base opacity-90 mb-3">لعبة تعليمية عبر المتصفح</p>
+            <p class="text-sm md:text-base opacity-90 mb-3">لعبة تعليمية  </p>
             <h1 class="text-3xl md:text-5xl font-bold mb-4">أتقن استخدام الماوس</h1>
             <p class="text-lg md:text-xl leading-9 max-w-4xl">
-              تدريب عملي للكبار يساعد المتدرب على تعلم تحريك الماوس، النقر، النقر المزدوج، السحب والإفلات، الزر الأيمن، والتمرير بطريقة تدريجية ومريحة.
+              تدريب عملي للكبار يساعد المتدرب على تعلم مهارات الماوس الأساسية خطوة بخطوة، مع إمكانية التدريب الكامل أو اختيار مهارة محددة.
             </p>
           </div>
 
-          <div class="grid lg:grid-cols-2 gap-8 p-6 md:p-10">
-            <div>
-              <h2 class="text-2xl font-bold mb-4 text-slate-900">ابدأ التدريب</h2>
+          <div class="p-6 md:p-10">
+            <div class="grid lg:grid-cols-3 gap-6 mb-8">
+              
+              <div class="lg:col-span-1">
+                <div class="rounded-3xl border border-slate-200 bg-slate-50 p-6 sticky top-6">
+                  <h2 class="text-2xl font-bold mb-5 text-slate-900">بيانات التدريب</h2>
 
-              <form id="start-form" class="space-y-5">
-                <div>
-                  <label class="block mb-2 font-semibold">اسم المتدرب</label>
-                  <input 
-                    id="player-name"
-                    type="text"
-                    placeholder="مثال: أحمد"
-                    class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-lg outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-600" required
-                  />
-                </div>
-
-                <div>
-                  <label class="block mb-2 font-semibold">مستوى التدريب</label>
-                  <select 
-                    id="difficulty"
-                    class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-lg outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-600"
-                  >
-                    <option value="beginner">مبتدئ - أهداف كبيرة وتدريب مريح</option>
-                    <option value="medium">متوسط - أهداف متوسطة</option>
-                    <option value="advanced">متقدم - أهداف أصغر وتحتاج دقة أعلى</option>
-                  </select>
-                </div>
-
-                <button 
-                  type="submit"
-                  class="w-full bg-blue-900 hover:bg-blue-800 text-white rounded-2xl py-4 text-xl font-bold transition"
-                >
-                  ابدأ الآن
-                </button>
-              </form>
-
-              <div class="mt-6 rounded-3xl bg-sky-50 border border-sky-100 p-5 text-sky-950 leading-8">
-                <h3 class="font-bold text-lg mb-2">فلسفة التدريب</h3>
-                <p>
-                  لا يوجد مؤقت في البداية حتى لا يشعر المتدرب بالضغط. الهدف هو بناء الثقة أولا، ثم زيادة الدقة والسرعة تدريجيا.
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <h2 class="text-2xl font-bold mb-4 text-slate-900">مراحل التدريب</h2>
-              <div class="grid md:grid-cols-2 gap-4">
-                ${stages
-                  .map(
-                    (stage, index) => `
-                  <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <div class="flex items-start gap-3">
-                      <div class="w-11 h-11 shrink-0 rounded-2xl bg-blue-900 text-white flex items-center justify-center font-bold text-lg">
-                        ${index + 1}
-                      </div>
-                      <div>
-                        <h3 class="font-bold text-base">${stage.title}</h3>
-                        <p class="text-slate-600 mt-1 text-sm leading-6">${
-                          stage.description
-                        }</p>
-                      </div>
+                  <form id="start-form" class="space-y-5">
+                    <div>
+                      <label class="block mb-2 font-semibold">اسم المتدرب</label>
+                      <input 
+                        id="player-name"
+                        type="text"
+                        placeholder="مثال: أحمد"
+                        class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-lg outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-600 bg-white" required
+                      />
                     </div>
+
+                    <div>
+                      <label class="block mb-2 font-semibold">مستوى التدريب</label>
+                      <select 
+                        id="difficulty"
+                        class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-lg outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-600 bg-white"
+                      >
+                        <option value="beginner">مبتدئ - أهداف كبيرة وتدريب مريح</option>
+                        <option value="medium">متوسط - أهداف متوسطة</option>
+                        <option value="advanced">متقدم - أهداف أصغر وتحتاج دقة أعلى</option>
+                      </select>
+                    </div>
+
+                    <button 
+                      type="submit"
+                      class="w-full bg-blue-900 hover:bg-blue-800 text-white rounded-2xl py-4 text-xl font-bold transition"
+                    >
+                      بدء التدريب الكامل
+                    </button>
+                  </form>
+
+                  <div class="mt-5 rounded-2xl bg-white border border-slate-200 p-4 text-slate-700 leading-7">
+                    <p class="font-bold text-slate-900 mb-1">ملاحظة للمدرب</p>
+                    <p>
+                      يمكن تشغيل التدريب الكامل أو اختيار قسم واحد فقط حسب مستوى المتدرب.
+                    </p>
                   </div>
-                `
-                  )
-                  .join("")}
+                </div>
               </div>
+
+              <div class="lg:col-span-2">
+                <div class="flex items-center justify-between gap-4 mb-5">
+                  <div>
+                    <h2 class="text-2xl font-bold text-slate-900">اختر قسم التدريب</h2>
+                    <p class="text-slate-500 mt-1">يمكنك تدريب المتدرب على مهارة محددة فقط.</p>
+                  </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                  ${stages
+                    .map(
+                      (stage, index) => `
+                    <button
+                    
+                      type="button"
+                      data-stage-index="${index}"
+                      class="stage-card text-right rounded-3xl border border-slate-200 bg-white hover:bg-sky-50 hover:border-sky-300 p-5 transition shadow-sm hover:shadow-md" disabled
+                    >
+                      <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 shrink-0 rounded-2xl bg-blue-900 text-white flex items-center justify-center font-bold text-xl">
+                          ${index + 1}
+                        </div>
+                        <div>
+                          <h3 class="font-bold text-lg text-slate-900">${
+                            stage.title
+                          }</h3>
+                          <p class="text-slate-600 mt-2 leading-7">${
+                            stage.description
+                          }</p>
+                          <p class="mt-3 text-sky-700 font-bold">ابدأ هذا القسم فقط ←</p>
+                        </div>
+                      </div>
+                    </button>
+                  `
+                    )
+                    .join("")}
+                </div>
+
+                <div class="mt-8 rounded-3xl bg-blue-50 border border-blue-100 p-6">
+                  <h3 class="font-bold text-xl text-blue-950 mb-3">كيف يستفيد المتدرب؟</h3>
+                  <div class="grid md:grid-cols-2 gap-3 text-blue-900 leading-7">
+                    <p>✅ يتعلم بدون ضغط أو إحراج.</p>
+                    <p>✅ يكرر المهارة التي يضعف فيها.</p>
+                    <p>✅ ينتقل من السهل إلى الأصعب.</p>
+                    <p>✅ يكتسب ثقة قبل استخدام الحاسوب فعليا.</p>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
+
         </div>
       </div>
     </section>
   `;
 
-  document.getElementById("start-form").addEventListener("submit", startGame);
+  document
+    .getElementById("start-form")
+    .addEventListener("submit", startFullGame);
+
+  document.querySelectorAll(".stage-card").forEach((button) => {
+    button.addEventListener("click", () => {
+      const stageIndex = Number(button.dataset.stageIndex);
+      startSingleStage(stageIndex);
+    });
+  });
+}
+
+function prepareTrainingSession() {
+  const nameInput = document.getElementById("player-name");
+  const difficultyInput = document.getElementById("difficulty");
+
+  state.playerName = nameInput?.value.trim() || "متدرب";
+  state.difficulty = difficultyInput?.value || "beginner";
+  state.stageSuccess = 0;
+  state.totalScore = 0;
+  state.startedAt = new Date();
+  state.finalStep = 0;
+}
+
+function startFullGame(event) {
+  event.preventDefault();
+
+  prepareTrainingSession();
+
+  state.trainingMode = "full";
+  state.selectedStageIndex = null;
+  state.currentStageIndex = 0;
+
+  renderStage();
+}
+
+function startSingleStage(stageIndex) {
+  prepareTrainingSession();
+
+  state.trainingMode = "single";
+  state.selectedStageIndex = stageIndex;
+  state.currentStageIndex = stageIndex;
+
+  renderStage();
 }
 
 function startGame(event) {
@@ -319,6 +400,11 @@ function registerSuccess(points = 10) {
 
   if (state.stageSuccess >= requiredSuccess) {
     setTimeout(() => {
+      if (state.trainingMode === "single") {
+        renderSingleStageResult();
+        return;
+      }
+
       state.currentStageIndex += 1;
       state.stageSuccess = 0;
       renderStage();
@@ -977,6 +1063,94 @@ function renderFinalChallenge(stage) {
   });
 
   updateFinalStepsUi();
+}
+
+function renderSingleStageResult() {
+  const endedAt = new Date();
+  const totalSeconds = Math.round((endedAt - state.startedAt) / 1000);
+  const stage = getCurrentStage();
+
+  app.innerHTML = `
+    <section class="min-h-screen flex items-center justify-center px-4 py-8">
+      <div class="w-full max-w-3xl bg-white rounded-3xl shadow-xl border border-slate-200 p-8 text-center">
+        
+        <div class="text-6xl mb-5">✅</div>
+
+        <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-3">
+          تم إكمال القسم
+        </h1>
+
+        <p class="text-slate-600 text-lg mb-8 leading-8">
+          أحسنت. تم إكمال تدريب: <span class="font-bold text-slate-900">${stage.title}</span>
+        </p>
+
+        <div class="grid md:grid-cols-3 gap-4 mb-8">
+          <div class="bg-slate-100 rounded-3xl p-5">
+            <p class="text-slate-500 mb-2">اسم المتدرب</p>
+            <p class="text-xl font-bold">${state.playerName}</p>
+          </div>
+
+          <div class="bg-slate-100 rounded-3xl p-5">
+            <p class="text-slate-500 mb-2">النقاط</p>
+            <p class="text-xl font-bold">${state.totalScore}</p>
+          </div>
+
+          <div class="bg-slate-100 rounded-3xl p-5">
+            <p class="text-slate-500 mb-2">المدة</p>
+            <p class="text-xl font-bold">${totalSeconds} ثانية</p>
+          </div>
+        </div>
+
+        <div class="rounded-3xl bg-blue-50 border border-blue-100 p-5 text-right mb-8">
+          <h2 class="font-bold text-blue-950 text-xl mb-2">ماذا تعني هذه النتيجة؟</h2>
+          <p class="text-blue-900 leading-8">
+            المتدرب أتم هذه المهارة بنجاح. يمكنه الآن إعادة نفس القسم لزيادة الثقة، أو الانتقال إلى قسم آخر، أو بدء التدريب الكامل.
+          </p>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-3 justify-center">
+          <button id="repeat-stage" class="bg-blue-900 hover:bg-blue-800 text-white rounded-2xl px-8 py-4 font-bold">
+            إعادة نفس القسم
+          </button>
+
+          <button id="choose-another-stage" class="bg-white border border-slate-300 hover:bg-slate-50 rounded-2xl px-8 py-4 font-bold">
+            اختيار قسم آخر
+          </button>
+
+          <button id="start-full-from-result" class="bg-sky-600 hover:bg-sky-700 text-white rounded-2xl px-8 py-4 font-bold">
+            بدء التدريب الكامل
+          </button>
+        </div>
+
+      </div>
+    </section>
+  `;
+
+  document.getElementById("repeat-stage").addEventListener("click", () => {
+    state.stageSuccess = 0;
+    state.totalScore = 0;
+    state.startedAt = new Date();
+    state.currentStageIndex = state.selectedStageIndex;
+    state.finalStep = 0;
+    renderStage();
+  });
+
+  document
+    .getElementById("choose-another-stage")
+    .addEventListener("click", renderHome);
+
+  document
+    .getElementById("start-full-from-result")
+    .addEventListener("click", () => {
+      state.trainingMode = "full";
+      state.selectedStageIndex = null;
+      state.currentStageIndex = 0;
+      state.stageSuccess = 0;
+      state.totalScore = 0;
+      state.startedAt = new Date();
+      state.finalStep = 0;
+      renderStage();
+    });
 }
 
 function renderResult() {
