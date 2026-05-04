@@ -1,0 +1,136 @@
+﻿
+    <!DOCTYPE html>
+    <html lang="ar" dir="rtl">
+    <head>
+      <meta charset="UTF-8" />
+      <style>
+        body {
+          font-family: Tahoma, Arial, sans-serif;
+          direction: rtl;
+        }
+
+        table {
+          border-collapse: collapse;
+          width: 100%;
+          direction: rtl;
+        }
+
+        th, td {
+          border: 1px solid #999;
+          padding: 8px;
+          text-align: right;
+          mso-number-format: "\@";
+        }
+
+        th {
+          background-color: #d9eaf7;
+          font-weight: bold;
+        }
+
+        .title {
+          font-size: 20px;
+          font-weight: bold;
+          margin-bottom: 15px;
+        }
+
+        .meta {
+          margin-bottom: 15px;
+          color: #555;
+        }
+      </style>
+    </head>
+
+    <body>
+      <div class="title">نتائج المتدربين - أتقن استخدام الماوس</div>
+      <div class="meta">تاريخ التصدير: 4‏/5‏/2026 7:31:03 م</div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>م</th>
+            <th>Id</th>
+            <th>ResultCode</th>
+            <th>اسم المتدرب</th>
+            <th>Difficulty</th>
+            <th>المستوى</th>
+            <th>نوع التدريب</th>
+            <th>القسم / المرحلة</th>
+            <th>النقاط</th>
+            <th>المراحل المكتملة</th>
+            <th>المدة بالثواني</th>
+            <th>التقييم</th>
+            <th>تاريخ التدريب</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          
+    <tr>
+      <td>1</td>
+      <td>5</td>
+      <td>4f306504-9ff0-4bf9-9c9d-f05794cded7a</td>
+      <td>ننننن</td>
+      <td>advanced</td>
+      <td>متقدم</td>
+      <td>تدريب قسم محدد</td>
+      <td>تدريب النقر المزدوج</td>
+      <td>48</td>
+      <td>1</td>
+      <td>7</td>
+      <td>مكتمل</td>
+      <td>4‏/5‏/2026 6:18:42 م</td>
+    </tr>
+  
+    <tr>
+      <td>2</td>
+      <td>4</td>
+      <td>e29e28fd-e51e-46c6-877d-71b1d927e67f</td>
+      <td>متدرب</td>
+      <td>beginner</td>
+      <td>مبتدئ</td>
+      <td>تدريب قسم محدد</td>
+      <td>تدريب زر الماوس الأيمن</td>
+      <td>48</td>
+      <td>1</td>
+      <td>10</td>
+      <td>مكتمل</td>
+      <td>4‏/5‏/2026 6:11:01 م</td>
+    </tr>
+  
+    <tr>
+      <td>3</td>
+      <td>3</td>
+      <td>b57e24bc-90b1-4a35-b67c-eaddfc0a4307</td>
+      <td>سليمان عطفان</td>
+      <td>beginner</td>
+      <td>مبتدئ</td>
+      <td>تدريب كامل</td>
+      <td>جميع مراحل التدريب</td>
+      <td>372</td>
+      <td>7</td>
+      <td>52</td>
+      <td>ممتاز</td>
+      <td>4‏/5‏/2026 6:10:16 م</td>
+    </tr>
+  
+    <tr>
+      <td>4</td>
+      <td>2</td>
+      <td>53f2b219-205c-418a-89a9-cccda672e0b2</td>
+      <td>سليم</td>
+      <td>beginner</td>
+      <td>مبتدئ</td>
+      <td>تدريب كامل</td>
+      <td>جميع مراحل التدريب</td>
+      <td>180</td>
+      <td>7</td>
+      <td>95</td>
+      <td>ممتاز</td>
+      <td>4‏/5‏/2026 5:57:20 م</td>
+    </tr>
+  
+        </tbody>
+      </table>
+    </body>
+    </html>
+  

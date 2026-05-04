@@ -52,7 +52,6 @@ const stages = [
   },
 ];
 
-
 const state = {
   playerName: "",
   difficulty: "beginner",
@@ -67,6 +66,84 @@ const state = {
   trainingMode: "full",
   selectedStageIndex: null,
 };
+
+//اربط مع API
+// غيّر الرابط حسب رابط الـ API عندك من Visual Studio
+const API_BASE_URL = "http://localhost:5155";
+
+async function saveTrainingResultToApi(resultPayload) {
+  const response = await fetch(`${API_BASE_URL}/api/results/save`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(resultPayload),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || "فشل حفظ النتيجة في قاعدة البيانات");
+  }
+
+  return await response.json();
+}
+
+function createApiResultPayload({
+  trainingScope,
+  stageTitle,
+  completedStages,
+  durationSeconds,
+  evaluation,
+}) {
+  const difficulty = getDifficultySettings();
+
+  return {
+    playerName: state.playerName,
+    difficulty: state.difficulty,
+    difficultyLabel: difficulty.label,
+    trainingScope: trainingScope,
+    stageTitle: stageTitle,
+    totalScore: state.totalScore,
+    completedStages: completedStages,
+    durationSeconds: durationSeconds,
+    evaluation: evaluation,
+  };
+}
+
+async function saveResultAndShowStatus(
+  resultPayload,
+  statusElementId = "api-save-status"
+) {
+  const statusElement = document.getElementById(statusElementId);
+
+  try {
+    if (statusElement) {
+      statusElement.textContent = "جاري حفظ النتيجة في قاعدة البيانات...";
+      statusElement.className = "text-sky-700 font-bold mb-6";
+    }
+
+    const savedResult = await saveTrainingResultToApi(resultPayload);
+
+    if (statusElement) {
+      statusElement.textContent = `تم حفظ النتيجة بنجاح. رقم النتيجة: ${savedResult.resultId}`;
+      statusElement.className = "text-emerald-700 font-bold mb-6";
+    }
+
+    console.log("Saved training result:", savedResult);
+  } catch (error) {
+    console.error("Save result error:", error);
+
+    if (statusElement) {
+
+        statusElement.textContent =
+        "لم يتم حفظ النتيجة , يبدو انك غير متصل بالانترنت";
+    //   statusElement.textContent =
+    //     "لم يتم حفظ النتيجة. تأكد أن الـ API يعمل وأن الرابط صحيح.";
+      statusElement.className = "text-red-600 font-bold mb-6";
+    }
+  }
+}
+// نهاية الربط
 
 function getDifficultySettings() {
   const settings = {
@@ -89,6 +166,205 @@ function getDifficultySettings() {
 
   return settings[state.difficulty] ?? settings.beginner;
 }
+
+//بداية حفظ الى ملف
+const RESULT_STORAGE_KEY = "mouse_trainer_results_v1";
+
+/*
+  لو تريد تحميل ملف TXT تلقائيا بعد نهاية كل تدريب،
+  غيّر القيمة إلى true.
+*/
+const AUTO_DOWNLOAD_RESULT_TXT = false;
+
+function getSavedResults() {
+  const rawResults = localStorage.getItem(RESULT_STORAGE_KEY);
+
+  if (!rawResults) {
+    return [];
+  }
+
+  try {
+    return JSON.parse(rawResults);
+  } catch {
+    return [];
+  }
+}
+
+function saveResultRecord(resultRecord) {
+  const results = getSavedResults();
+
+  results.push(resultRecord);
+
+  localStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(results));
+
+  return resultRecord;
+}
+
+function createTrainingResultRecord({
+  trainingScope,
+  stageTitle,
+  completedStages,
+  durationSeconds,
+  evaluation,
+}) {
+  const difficulty = getDifficultySettings();
+  const now = new Date();
+
+  return {
+    id: generateResultId(),
+    playerName: state.playerName,
+    difficulty: state.difficulty,
+    difficultyLabel: difficulty.label,
+    trainingScope: trainingScope,
+    stageTitle: stageTitle,
+    totalScore: state.totalScore,
+    completedStages: completedStages,
+    durationSeconds: durationSeconds,
+    evaluation: evaluation,
+    createdAt: now.toISOString(),
+    createdAtDisplay: now.toLocaleString("ar"),
+  };
+}
+
+function generateResultId() {
+  if (window.crypto && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+
+  return `RESULT-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+}
+
+function buildSingleResultText(result) {
+  return `
+========================================
+          نتيجة تدريب استخدام الماوس
+========================================
+
+رقم النتيجة:
+${result.id}
+
+اسم المتدرب:
+${result.playerName}
+
+نوع التدريب:
+${result.trainingScope}
+
+القسم / المرحلة:
+${result.stageTitle}
+
+المستوى:
+${result.difficultyLabel} (${result.difficulty})
+
+النقاط:
+${result.totalScore}
+
+عدد المراحل المكتملة:
+${result.completedStages}
+
+مدة التدريب:
+${result.durationSeconds} ثانية
+
+التقييم:
+${result.evaluation}
+
+تاريخ ووقت التدريب:
+${result.createdAtDisplay}
+
+========================================
+تم إنشاء هذه النتيجة بواسطة لعبة:
+أتقن استخدام الماوس
+========================================
+`.trim();
+}
+
+function buildAllResultsText() {
+  const results = getSavedResults();
+
+  if (results.length === 0) {
+    return "لا توجد نتائج محفوظة حتى الآن.";
+  }
+
+  const header = `
+========================================
+          سجل نتائج المتدربين
+========================================
+
+عدد النتائج المحفوظة: ${results.length}
+
+========================================
+`.trim();
+
+  const body = results
+    .map((result, index) => {
+      return `
+النتيجة رقم: ${index + 1}
+----------------------------------------
+رقم النتيجة: ${result.id}
+اسم المتدرب: ${result.playerName}
+نوع التدريب: ${result.trainingScope}
+القسم / المرحلة: ${result.stageTitle}
+المستوى: ${result.difficultyLabel} (${result.difficulty})
+النقاط: ${result.totalScore}
+المراحل المكتملة: ${result.completedStages}
+مدة التدريب: ${result.durationSeconds} ثانية
+التقييم: ${result.evaluation}
+التاريخ: ${result.createdAtDisplay}
+----------------------------------------
+`.trim();
+    })
+    .join("\n\n");
+
+  return `${header}\n\n${body}`;
+}
+
+function downloadTextFile(fileName, content) {
+  const blob = new Blob([content], {
+    type: "text/plain;charset=utf-8",
+  });
+
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+}
+
+function sanitizeFileName(value) {
+  return value
+    .replace(/[\\/:*?"<>|]/g, "-")
+    .replace(/\s+/g, "-")
+    .trim();
+}
+
+function downloadSingleResultTxt(result) {
+  const safeName = sanitizeFileName(result.playerName || "trainee");
+  const datePart = new Date().toISOString().slice(0, 10);
+
+  downloadTextFile(
+    `mouse-training-result-${safeName}-${datePart}.txt`,
+    buildSingleResultText(result)
+  );
+}
+
+function downloadAllResultsTxt() {
+  const datePart = new Date().toISOString().slice(0, 10);
+
+  downloadTextFile(
+    `mouse-training-all-results-${datePart}.txt`,
+    buildAllResultsText()
+  );
+}
+
+function clearSavedResults() {
+  localStorage.removeItem(RESULT_STORAGE_KEY);
+}
+//نهاية حفظ الى ملف
 
 function getCurrentStage() {
   return stages[state.currentStageIndex];
@@ -160,42 +436,27 @@ function renderMobileWarning() {
   document.getElementById("copy-link").addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      document.getElementById("copy-message").textContent = "تم نسخ الرابط. افتحه من الكمبيوتر أو اللابتوب.";
-      document.getElementById("copy-message").className = "mt-4 text-sm text-emerald-700 font-bold";
+      document.getElementById("copy-message").textContent =
+        "تم نسخ الرابط. افتحه من الكمبيوتر أو اللابتوب.";
+      document.getElementById("copy-message").className =
+        "mt-4 text-sm text-emerald-700 font-bold";
     } catch {
-      document.getElementById("copy-message").textContent = "لم يتم النسخ تلقائيا. انسخ الرابط من شريط المتصفح.";
-      document.getElementById("copy-message").className = "mt-4 text-sm text-red-600 font-bold";
+      document.getElementById("copy-message").textContent =
+        "لم يتم النسخ تلقائيا. انسخ الرابط من شريط المتصفح.";
+      document.getElementById("copy-message").className =
+        "mt-4 text-sm text-red-600 font-bold";
     }
   });
 }
 
-
-
-
-
-
-
-
-
 function showMobileAlert() {
   alert(
     "تنبيه مهم:\n\n" +
-    "     المستخدم :  [ ايمن عبد الله ]   لا يمكن فتح اللعبة من الجوال.\n" 
+      "     المستخدم :  [ ايمن عبد الله ]   لا يمكن فتح اللعبة من الجوال.\n"
   );
 }
 
-// function showMobileAlert() {
-//   alert(
-//     "تنبيه مهم:\n\n" +
-//     "هذه اللعبة مصممة لتعليم استخدام الماوس.\n" +
-//     "للحصول على أفضل تجربة تدريبية، يرجى فتحها من جهاز كمبيوتر أو لابتوب.\n\n" +
-//     "يمكنك المتابعة من الجوال، لكن التدريب لن يكون دقيقا."
-//   );
-// }
-// عرض الصفحة الرئيسية لاختيار اسم المتدرب والمستوى وبدء التدريب
-
-
-
+//disabled
 function renderHome() {
   app.innerHTML = `
     <section class="min-h-screen px-4 py-8">
@@ -208,6 +469,9 @@ function renderHome() {
             <p class="text-lg md:text-xl leading-9 max-w-4xl">
               تدريب عملي للكبار يساعد المتدرب على تعلم مهارات الماوس الأساسية خطوة بخطوة، مع إمكانية التدريب الكامل أو اختيار مهارة محددة.
             </p>
+
+         
+
           </div>
 
           <div class="p-6 md:p-10">
@@ -273,7 +537,7 @@ function renderHome() {
                     
                       type="button"
                       data-stage-index="${index}"
-                      class="stage-card text-right rounded-3xl border border-slate-200 bg-white hover:bg-sky-50 hover:border-sky-300 p-5 transition shadow-sm hover:shadow-md" disabled
+                      class="stage-card text-right rounded-3xl border border-slate-200 bg-white hover:bg-sky-50 hover:border-sky-300 p-5 transition shadow-sm hover:shadow-md" 
                     >
                       <div class="flex items-start gap-4">
                         <div class="w-12 h-12 shrink-0 rounded-2xl bg-blue-900 text-white flex items-center justify-center font-bold text-xl">
@@ -302,6 +566,12 @@ function renderHome() {
                     <p>✅ يكرر المهارة التي يضعف فيها.</p>
                     <p>✅ ينتقل من السهل إلى الأصعب.</p>
                     <p>✅ يكتسب ثقة قبل استخدام الحاسوب فعليا.</p>
+                    <p>✅      <a href="../../results.html"
+             class=" w-full mt-4  hover:bg-slate-800 text-white rounded-2xl  font-bold text-lg text-center">
+             لوحة نتائج المتدربين
+           </a></p>
+
+                  
                   </div>
                 </div>
               </div>
@@ -321,11 +591,142 @@ function renderHome() {
   document.querySelectorAll(".stage-card").forEach((button) => {
     button.addEventListener("click", () => {
       const stageIndex = Number(button.dataset.stageIndex);
-      startSingleStage(stageIndex);
+      openSingleStageNameModal(stageIndex);
+      // startSingleStage(stageIndex);
     });
   });
 }
 
+function openSingleStageNameModal(stageIndex) {
+  const stage = stages[stageIndex];
+
+  const oldModal = document.getElementById("single-stage-name-modal");
+  if (oldModal) {
+    oldModal.remove();
+  }
+
+  const currentName =
+    document.getElementById("player-name")?.value.trim() || "";
+  const currentDifficulty =
+    document.getElementById("difficulty")?.value || "beginner";
+
+  const modal = document.createElement("div");
+  modal.id = "single-stage-name-modal";
+
+  modal.innerHTML = `
+    <div class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center px-4">
+      <div class="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+        
+        <div class="bg-gradient-to-l from-blue-950 via-blue-900 to-sky-700 text-white p-6 text-center">
+          <div class="text-5xl mb-3">🖱️</div>
+          <h2 class="text-2xl font-bold mb-2">بدء تدريب قسم محدد</h2>
+          <p class="text-blue-50 leading-7">
+            سيتم تشغيل قسم: <strong>${stage.title}</strong>
+          </p>
+        </div>
+
+        <form id="single-stage-name-form" class="p-6">
+          <div class="mb-5">
+            <label class="block mb-2 font-bold text-slate-900">
+              اسم المتدرب
+            </label>
+
+            <input
+              id="single-stage-player-name"
+              type="text"
+              value="${currentName}"
+              placeholder="اكتب اسم المتدرب"
+              class="w-full rounded-2xl border border-slate-300 px-4 py-3 text-lg outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-600"
+              autocomplete="off"
+            />
+
+            <p id="single-stage-name-error" class="hidden mt-2 text-sm text-red-600 font-bold">
+              يرجى كتابة اسم المتدرب قبل بدء القسم.
+            </p>
+          </div>
+
+          <div class="mb-6 rounded-2xl bg-slate-50 border border-slate-200 p-4 text-slate-700 leading-7">
+            <p>
+              المستوى الحالي:
+              <span class="font-bold text-blue-900">
+                ${getDifficultyLabelByValue(currentDifficulty)}
+              </span>
+            </p>
+            <p class="text-sm text-slate-500 mt-1">
+              يمكن تغيير المستوى من القائمة في الصفحة الرئيسية قبل اختيار القسم.
+            </p>
+          </div>
+
+          <div class="flex flex-col md:flex-row gap-3">
+            <button
+              type="submit"
+              class="flex-1 bg-blue-900 hover:bg-blue-800 text-white rounded-2xl py-4 font-bold text-lg"
+            >
+              ابدأ القسم
+            </button>
+
+            <button
+              type="button"
+              id="cancel-single-stage"
+              class="flex-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-900 rounded-2xl py-4 font-bold text-lg"
+            >
+              إلغاء
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  const nameInput = document.getElementById("single-stage-player-name");
+  const errorText = document.getElementById("single-stage-name-error");
+
+  nameInput.focus();
+  nameInput.select();
+
+  document
+    .getElementById("cancel-single-stage")
+    .addEventListener("click", () => {
+      modal.remove();
+    });
+
+  document
+    .getElementById("single-stage-name-form")
+    .addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const playerName = nameInput.value.trim();
+
+      if (!playerName) {
+        errorText.classList.remove("hidden");
+        nameInput.classList.add(
+          "border-red-500",
+          "focus:border-red-500",
+          "focus:ring-red-100"
+        );
+        return;
+      }
+
+      modal.remove();
+
+      startSingleStageWithName(stageIndex, playerName, currentDifficulty);
+    });
+}
+
+function getDifficultyLabelByValue(value) {
+  const labels = {
+    beginner: "مبتدئ",
+    medium: "متوسط",
+    advanced: "متقدم",
+  };
+
+  return labels[value] || "مبتدئ";
+}
+
+//
 function prepareTrainingSession() {
   const nameInput = document.getElementById("player-name");
   const difficultyInput = document.getElementById("difficulty");
@@ -356,6 +757,23 @@ function startSingleStage(stageIndex) {
   state.trainingMode = "single";
   state.selectedStageIndex = stageIndex;
   state.currentStageIndex = stageIndex;
+
+  renderStage();
+  //// openSingleStageNameModal(stageIndex);
+}
+
+function startSingleStageWithName(stageIndex, playerName, difficulty) {
+  state.playerName = playerName;
+  state.difficulty = difficulty || "beginner";
+
+  state.trainingMode = "single";
+  state.selectedStageIndex = stageIndex;
+  state.currentStageIndex = stageIndex;
+
+  state.stageSuccess = 0;
+  state.totalScore = 0;
+  state.startedAt = new Date();
+  state.finalStep = 0;
 
   renderStage();
 }
@@ -937,8 +1355,8 @@ function renderFinalChallenge(stage) {
       ${[
         "افتح ملف التدريب بالنقر المزدوج",
         "اسحب بطاقة السلامة إلى صندوق الأدوات",
-        "اضغط بالزر الأيمن واختر فتح",
-        "مرر للأسفل واضغط إنهاء التدريب",
+        "اضغط بالزر الأيمن واختر فتح (لوحة إجراءات) تقريرالتدريب",
+        "مرر للأسفل واضغط إنهاء التدريب(تعليمات 1، 2، 3...) مرر الى الاسفل ",
       ]
         .map(
           (text, index) => `
@@ -1162,10 +1580,36 @@ function renderFinalChallenge(stage) {
   updateFinalStepsUi();
 }
 
+
+function formatDuration(totalSeconds) {
+  if (totalSeconds < 60) {
+    return `${totalSeconds} ثانية`;
+  }
+
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  if (seconds === 0) {
+    return `${minutes} دقيقة`;
+  }
+
+  return `${minutes} دقيقة و ${seconds} ثانية`;
+}
+
+
+//المدة
 function renderSingleStageResult() {
   const endedAt = new Date();
   const totalSeconds = Math.round((endedAt - state.startedAt) / 1000);
   const stage = getCurrentStage();
+
+  const resultPayload = createApiResultPayload({
+    trainingScope: "تدريب قسم محدد",
+    stageTitle: stage.title,
+    completedStages: 1,
+    durationSeconds: totalSeconds,
+    evaluation: "مكتمل",
+  });
 
   app.innerHTML = `
     <section class="min-h-screen flex items-center justify-center px-4 py-8">
@@ -1194,7 +1638,7 @@ function renderSingleStageResult() {
 
           <div class="bg-slate-100 rounded-3xl p-5">
             <p class="text-slate-500 mb-2">المدة</p>
-            <p class="text-xl font-bold">${totalSeconds} ثانية</p>
+            <p class="text-xl font-bold">${formatDuration(totalSeconds)}</p>
           </div>
         </div>
 
@@ -1204,6 +1648,10 @@ function renderSingleStageResult() {
             المتدرب أتم هذه المهارة بنجاح. يمكنه الآن إعادة نفس القسم لزيادة الثقة، أو الانتقال إلى قسم آخر، أو بدء التدريب الكامل.
           </p>
         </div>
+
+        <p id="api-save-status" class="text-sky-700 font-bold mb-6">
+         جاري حفظ النتيجة في قاعدة البيانات...
+           </p>
 
         <div class="flex flex-col md:flex-row gap-3 justify-center">
           <button id="repeat-stage" class="bg-blue-900 hover:bg-blue-800 text-white rounded-2xl px-8 py-4 font-bold">
@@ -1222,6 +1670,8 @@ function renderSingleStageResult() {
       </div>
     </section>
   `;
+
+  saveResultAndShowStatus(resultPayload);
 
   document.getElementById("repeat-stage").addEventListener("click", () => {
     state.stageSuccess = 0;
@@ -1263,6 +1713,38 @@ function renderResult() {
     message = "الأداء جيد، ويُنصح بتكرار التدريب مرة أخرى لزيادة الثقة والدقة.";
   }
 
+  const resultPayload = createApiResultPayload({
+    trainingScope: "تدريب كامل",
+    stageTitle: "جميع مراحل التدريب",
+    completedStages: stages.length,
+    durationSeconds: totalSeconds,
+    evaluation: level,
+  });
+
+  const resultRecord = saveResultRecord(
+    createTrainingResultRecord({
+      trainingScope: "تدريب كامل",
+      stageTitle: "جميع مراحل التدريب",
+      completedStages: stages.length,
+      durationSeconds: totalSeconds,
+      evaluation: level,
+    })
+  );
+
+  if (AUTO_DOWNLOAD_RESULT_TXT) {
+    downloadSingleResultTxt(resultRecord);
+  }
+
+  //  <div class="flex flex-col md:flex-row gap-3 justify-center">
+  //           <button id="restart-game" class="bg-blue-900 hover:bg-blue-800 text-white rounded-2xl px-8 py-4 font-bold">
+  //             إعادة التدريب
+  //           </button>
+
+  //           <button id="go-home" class="bg-white border border-slate-300 hover:bg-slate-50 rounded-2xl px-8 py-4 font-bold">
+  //             العودة للبداية
+  //           </button>
+  //         </div>
+
   app.innerHTML = `
     <section class="min-h-screen flex items-center justify-center px-4 py-8">
       <div class="w-full max-w-4xl bg-white rounded-3xl shadow-xl border border-slate-200 p-8 text-center">
@@ -1289,7 +1771,7 @@ function renderResult() {
 
           <div class="bg-slate-100 rounded-3xl p-5">
             <p class="text-slate-500 mb-2">المدة</p>
-            <p class="text-xl font-bold">${totalSeconds} ثانية</p>
+            <p class="text-xl font-bold">${formatDuration(totalSeconds)}</p>
           </div>
         </div>
 
@@ -1305,18 +1787,39 @@ function renderResult() {
           </div>
         </div>
 
-        <div class="flex flex-col md:flex-row gap-3 justify-center">
-          <button id="restart-game" class="bg-blue-900 hover:bg-blue-800 text-white rounded-2xl px-8 py-4 font-bold">
-            إعادة التدريب
-          </button>
+         <p id="api-save-status" class="text-sky-700 font-bold mb-6">
+          جاري حفظ النتيجة في قاعدة البيانات...
+      </p>
 
-          <button id="go-home" class="bg-white border border-slate-300 hover:bg-slate-50 rounded-2xl px-8 py-4 font-bold">
-            العودة للبداية
-          </button>
+        <div class="flex flex-col md:flex-row gap-3 justify-center">
+       
+     
+      
+        <button id="restart-game" class="bg-blue-900 hover:bg-blue-800 text-white rounded-2xl px-8 py-4 font-bold">
+          إعادة التدريب
+        </button>
+      
+        <button id="go-home" class="bg-white border border-slate-300 hover:bg-slate-50 rounded-2xl px-8 py-4 font-bold">
+          العودة للبداية
+         </button>
         </div>
+
+       
       </div>
     </section>
   `;
+
+  document
+    .getElementById("download-current-result")
+    .addEventListener("click", () => {
+      downloadSingleResultTxt(resultRecord);
+    });
+
+  document
+    .getElementById("download-all-results")
+    .addEventListener("click", () => {
+      downloadAllResultsTxt();
+    });
 
   document.getElementById("restart-game").addEventListener("click", () => {
     state.currentStageIndex = 0;
@@ -1328,12 +1831,13 @@ function renderResult() {
   });
 
   document.getElementById("go-home").addEventListener("click", renderHome);
+  saveResultAndShowStatus(resultPayload);
 }
 
 //renderHome();
 if (isMobileDevice()) {
   renderMobileWarning();
-   showMobileAlert();
+  showMobileAlert();
 } else {
   renderHome();
 }
