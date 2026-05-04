@@ -99,6 +99,103 @@ function getRequiredSuccess(stage = getCurrentStage()) {
   return stage?.requiredSuccess ?? difficulty.successTarget;
 }
 
+// بداية التطبيق
+function isMobileDevice() {
+  const userAgent = navigator.userAgent.toLowerCase();
+
+  const isMobileUserAgent =
+    /android|iphone|ipad|ipod|windows phone|mobile/i.test(userAgent);
+
+  const isSmallScreen = window.innerWidth < 768;
+
+  return isMobileUserAgent || isSmallScreen;
+}
+
+console.log("هل الجهاز جوال؟", isMobileDevice());
+// إذا كان الجهاز جوال، نعرض تحذير أو نمنع الدخول حسب القرار
+function renderMobileWarning() {
+  app.innerHTML = `
+    <section class="min-h-screen flex items-center justify-center px-4 py-8 bg-slate-100">
+      <div class="w-full max-w-xl bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden text-center">
+        
+        <div class="bg-gradient-to-l from-blue-950 to-sky-700 text-white p-8">
+          <div class="text-6xl mb-4">🖱️</div>
+          <h1 class="text-3xl font-bold mb-3">التدريب مخصص للكمبيوتر</h1>
+          <p class="leading-8 text-blue-50">
+            هذه اللعبة مصممة لتعليم استخدام الماوس، لذلك تعمل بأفضل شكل على جهاز كمبيوتر أو لابتوب.
+          </p>
+        </div>
+
+        <div class="p-7">
+          <div class="rounded-3xl bg-amber-50 border border-amber-200 p-5 mb-5 text-amber-900 leading-8">
+            يبدو أنك فتحت اللعبة من جوال أو شاشة صغيرة.  
+            للحصول على تجربة تدريب صحيحة، يرجى فتح الرابط من جهاز يحتوي على ماوس.
+          </div>
+
+          <div class="grid gap-3 text-right mb-6">
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
+              ✅ تدريب تحريك مؤشر الماوس
+            </div>
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
+              ✅ تدريب النقر والنقر المزدوج
+            </div>
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
+              ✅ تدريب السحب والإفلات والزر الأيمن
+            </div>
+          </div>
+
+          <button 
+            id="copy-link"
+            class="w-full bg-blue-900 hover:bg-blue-800 text-white rounded-2xl py-4 font-bold text-lg"
+          >
+            نسخ رابط اللعبة
+          </button>
+
+          <p id="copy-message" class="mt-4 text-sm text-slate-500"></p>
+        </div>
+      </div>
+    </section>
+  `;
+
+  document.getElementById("copy-link").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      document.getElementById("copy-message").textContent = "تم نسخ الرابط. افتحه من الكمبيوتر أو اللابتوب.";
+      document.getElementById("copy-message").className = "mt-4 text-sm text-emerald-700 font-bold";
+    } catch {
+      document.getElementById("copy-message").textContent = "لم يتم النسخ تلقائيا. انسخ الرابط من شريط المتصفح.";
+      document.getElementById("copy-message").className = "mt-4 text-sm text-red-600 font-bold";
+    }
+  });
+}
+
+
+
+
+
+
+
+
+
+function showMobileAlert() {
+  alert(
+    "تنبيه مهم:\n\n" +
+    "     المستخدم :  [ ايمن عبد الله ]   لا يمكن فتح اللعبة من الجوال.\n" 
+  );
+}
+
+// function showMobileAlert() {
+//   alert(
+//     "تنبيه مهم:\n\n" +
+//     "هذه اللعبة مصممة لتعليم استخدام الماوس.\n" +
+//     "للحصول على أفضل تجربة تدريبية، يرجى فتحها من جهاز كمبيوتر أو لابتوب.\n\n" +
+//     "يمكنك المتابعة من الجوال، لكن التدريب لن يكون دقيقا."
+//   );
+// }
+// عرض الصفحة الرئيسية لاختيار اسم المتدرب والمستوى وبدء التدريب
+
+
+
 function renderHome() {
   app.innerHTML = `
     <section class="min-h-screen px-4 py-8">
@@ -1233,4 +1330,10 @@ function renderResult() {
   document.getElementById("go-home").addEventListener("click", renderHome);
 }
 
-renderHome();
+//renderHome();
+if (isMobileDevice()) {
+  renderMobileWarning();
+   showMobileAlert();
+} else {
+  renderHome();
+}

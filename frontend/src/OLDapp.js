@@ -528,4 +528,162 @@ function renderResult() {
   document.getElementById("go-home").addEventListener("click", renderHome);
 }
 
+
+
+
+// عرض تحذير خاص للمستخدمين الذين فتحوا اللعبة من جوال، مع إمكانية نسخ الرابط لفتحه من كمبيوتر
+function renderMobileSoftWarning() {
+  app.innerHTML = `
+    <section class="min-h-screen flex items-center justify-center px-4 py-8 bg-slate-100">
+      <div class="w-full max-w-2xl bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden text-center">
+
+        <div class="bg-gradient-to-l from-blue-950 via-blue-900 to-sky-700 text-white p-8">
+          <div class="text-6xl mb-4">🖱️</div>
+          <h1 class="text-3xl font-bold mb-3">تنبيه مهم</h1>
+          <p class="leading-8 text-blue-50 text-lg">
+            هذه اللعبة مصممة أساسا لتعليم استخدام الماوس، لذلك ننصح بفتحها من جهاز كمبيوتر أو لابتوب.
+          </p>
+        </div>
+
+        <div class="p-7">
+          <div class="rounded-3xl bg-amber-50 border border-amber-200 p-5 mb-6 text-amber-900 leading-8 text-right">
+            يبدو أنك تستخدم جوالا أو شاشة صغيرة.  
+            يمكنك المتابعة، لكن تجربة التدريب لن تكون دقيقة لأن الهدف الأساسي هو تعلم استخدام الماوس.
+          </div>
+
+          <div class="grid md:grid-cols-3 gap-3 mb-6 text-right">
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
+              <p class="font-bold text-slate-900 mb-1">تحريك المؤشر</p>
+              <p class="text-sm text-slate-600">يحتاج إلى ماوس حقيقي.</p>
+            </div>
+
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
+              <p class="font-bold text-slate-900 mb-1">النقر المزدوج</p>
+              <p class="text-sm text-slate-600">أفضل على الكمبيوتر.</p>
+            </div>
+
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
+              <p class="font-bold text-slate-900 mb-1">السحب والإفلات</p>
+              <p class="text-sm text-slate-600">مصمم للتدريب بالماوس.</p>
+            </div>
+          </div>
+
+          <div class="flex flex-col md:flex-row gap-3">
+            <button 
+              id="continue-anyway"
+              class="flex-1 bg-blue-900 hover:bg-blue-800 text-white rounded-2xl py-4 font-bold text-lg"
+            >
+              المتابعة رغم ذلك
+            </button>
+
+            <button 
+              id="copy-link"
+              class="flex-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-900 rounded-2xl py-4 font-bold text-lg"
+            >
+              نسخ الرابط للكمبيوتر
+            </button>
+          </div>
+
+          <p id="copy-message" class="mt-4 text-sm text-slate-500"></p>
+        </div>
+
+      </div>
+    </section>
+  `;
+
+  document.getElementById("continue-anyway").addEventListener("click", () => {
+    renderHome();
+  });
+
+  document.getElementById("copy-link").addEventListener("click", async () => {
+    const message = document.getElementById("copy-message");
+
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      message.textContent = "تم نسخ الرابط. افتحه من الكمبيوتر أو اللابتوب.";
+      message.className = "mt-4 text-sm text-emerald-700 font-bold";
+    } catch {
+      message.textContent = "لم يتم النسخ تلقائيا. انسخ الرابط من شريط المتصفح.";
+      message.className = "mt-4 text-sm text-red-600 font-bold";
+    }
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// عرض تحذير خاص للمستخدمين الذين فتحوا اللعبة من جوال، مع إمكانية نسخ الرابط لفتحه من كمبيوتر
+function renderMobileBlockedScreen() {
+  app.innerHTML = `
+    <section class="min-h-screen flex items-center justify-center px-4 py-8 bg-slate-100">
+      <div class="w-full max-w-2xl bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden text-center">
+
+        <div class="bg-gradient-to-l from-red-900 via-red-800 to-orange-600 text-white p-8">
+          <div class="text-6xl mb-4">🚫</div>
+          <h1 class="text-3xl font-bold mb-3">لا يمكن تشغيل التدريب من الجوال</h1>
+          <p class="leading-8 text-red-50 text-lg">
+            هذا التدريب مخصص لتعلم استخدام الماوس، لذلك يجب فتحه من جهاز كمبيوتر أو لابتوب.
+          </p>
+        </div>
+
+        <div class="p-7">
+          <div class="rounded-3xl bg-red-50 border border-red-200 p-5 mb-6 text-red-900 leading-8 text-right">
+            تم إيقاف تشغيل اللعبة على هذا الجهاز لأن الجوال لا يحتوي على ماوس حقيقي.  
+            للحصول على نتيجة تدريب صحيحة، يرجى فتح الرابط من كمبيوتر أو لابتوب.
+          </div>
+
+          <div class="rounded-3xl bg-slate-50 border border-slate-200 p-5 mb-6 text-right">
+            <h2 class="font-bold text-xl text-slate-900 mb-3">لماذا لا تعمل على الجوال؟</h2>
+            <div class="space-y-3 text-slate-700 leading-7">
+              <p>✅ لأن الهدف هو تدريب حركة مؤشر الماوس.</p>
+              <p>✅ لأن النقر المزدوج بالماوس يختلف عن لمس الشاشة.</p>
+              <p>✅ لأن السحب والإفلات في الكمبيوتر يختلف عن السحب باللمس.</p>
+              <p>✅ لأن زر الماوس الأيمن غير موجود بنفس الطريقة في الجوال.</p>
+            </div>
+          </div>
+
+          <button 
+            id="copy-link"
+            class="w-full bg-blue-900 hover:bg-blue-800 text-white rounded-2xl py-4 font-bold text-lg"
+          >
+            نسخ رابط اللعبة وفتحه من الكمبيوتر
+          </button>
+
+          <p id="copy-message" class="mt-4 text-sm text-slate-500"></p>
+        </div>
+
+      </div>
+    </section>
+  `;
+
+  document.getElementById("copy-link").addEventListener("click", async () => {
+    const message = document.getElementById("copy-message");
+
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      message.textContent = "تم نسخ الرابط. افتحه من الكمبيوتر أو اللابتوب.";
+      message.className = "mt-4 text-sm text-emerald-700 font-bold";
+    } catch {
+      message.textContent = "لم يتم النسخ تلقائيا. انسخ الرابط من شريط المتصفح.";
+      message.className = "mt-4 text-sm text-red-600 font-bold";
+    }
+  });
+}
+
+
+
+
+
+
+
+
 renderHome();
