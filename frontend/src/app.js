@@ -158,7 +158,12 @@ function getDifficultySettings() {
     },
     advanced: {
       label: "متقدم",
-      targetSize: 70,
+      targetSize: 55,
+      successTarget: 5,
+    },
+     pro: {
+      label: "محترف",
+      targetSize: 25,
       successTarget: 5,
     },
   };
@@ -464,7 +469,7 @@ function renderHome() {
         <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
 
           <div class="bg-gradient-to-l from-blue-950 via-blue-900 to-sky-700 text-white p-8 md:p-10">
-          <h1 class="text-3xl md:text-4xl font-bold mb-4 text-lime-200 text-center">أساس <span class="text-yellow-400"> للصحة والسلامة المهنية </span> للتدريب</h1>
+          <h1 class="text-3xl md:text-4xl font-bold mb-4  text-center  border-x-2 border-w-500   w-fit px-60  place-self-center  p-1">أساس <span class="text-yellow-300"> للصحة و السلامة  </span> المهنية </h1>
             <p class="text-sm md:text-base opacity-90 mb-3">لعبة تعليمية  </p>
             <h2 class="text-3xl md:text-5xl font-bold mb-4">أتقن استخدام الماوس</h2>
             <p class="text-lg md:text-xl leading-9 max-w-4xl">
@@ -502,6 +507,7 @@ function renderHome() {
                         <option value="beginner">مبتدئ - أهداف كبيرة وتدريب مريح</option>
                         <option value="medium">متوسط - أهداف متوسطة</option>
                         <option value="advanced">متقدم - أهداف أصغر وتحتاج دقة أعلى</option>
+                        <option value="pro">محترف - أهداف أصغر وتحتاج دقة أعلى</option>
                       </select>
                     </div>
 
@@ -589,10 +595,14 @@ function renderHome() {
 
         </div>
       </div>
-      <div class="border-2 border-indigo-200 border-x-indigo-500 mt-6">
       
-      <h3 class="text-3xl md:text-2xl font-bold mb-4 text-center py-6"> برمجة  <a href="../../index.html"> أساس <span class="text-yellow-400"> تك</span></a> 2026</h3>
+      <div class=" w-fit px-40  border-x-2 rounded-xl border-indigo-200 border-x-indigo-500 mt-6 place-self-center">
+      
+      <h3 class="text-3xl md:text-2xl font-bold mb-4 text-center py-6 "> برمجة  <a href="../../index.html"> أساس <span class="text-yellow-500"> تك</span></a> 2026</h3>
       </div>
+      
+
+    
 
 
     </section>
@@ -735,6 +745,7 @@ function getDifficultyLabelByValue(value) {
     beginner: "مبتدئ",
     medium: "متوسط",
     advanced: "متقدم",
+    pro: "محترف",
   };
 
   return labels[value] || "مبتدئ";
@@ -942,7 +953,7 @@ function registerSuccess(points = 10) {
 }
 
 function getRandomPosition(container, elementSize) {
-  const padding = 24;
+  const padding = 30;
   const maxX = container.clientWidth - elementSize - padding;
   const maxY = container.clientHeight - elementSize - padding;
 
