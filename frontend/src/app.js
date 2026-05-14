@@ -578,7 +578,6 @@ function renderHome() {
 
 
 
-            <h3 class="text-3xl md:text-2xl font-bold mb-4 text-center mt-8"> برمجة  <a href="../../index.html"> أساس <span class="text-yellow-400"> تك</span></a> 2026</h3>
 
 
               
@@ -590,6 +589,12 @@ function renderHome() {
 
         </div>
       </div>
+      <div class="border-2 border-indigo-200 border-x-indigo-500 mt-6">
+      
+      <h3 class="text-3xl md:text-2xl font-bold mb-4 text-center py-6"> برمجة  <a href="../../index.html"> أساس <span class="text-yellow-400"> تك</span></a> 2026</h3>
+      </div>
+
+
     </section>
   `;
 
