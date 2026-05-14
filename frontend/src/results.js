@@ -1,7 +1,9 @@
 const app = document.getElementById("results-app");
 
 // غيّر الرابط حسب رابط الـ API عندك من Visual Studio
-const API_BASE_URL = "http://localhost:5155";
+// const API_BASE_URL = "http://localhost:5155";
+const API_BASE_URL = "http://mousegame.runasp.net/api/results";
+
 
 // كلمة مرور بسيطة من 4 أرقام
 // غيّرها كما تريد
@@ -327,7 +329,7 @@ async function loadResults() {
     console.error(error);
 
     status.textContent =
-      "حدث خطأ أثناء تحميل النتائج. تأكد أن الـ API يعمل والرابط صحيح.";
+      "حدث خطأ أثناء تحميل النتائج. تأكد أن الـ API يعمل والرابط صحيح.711";
     status.className = "text-red-600 font-bold";
 
     tableBody.innerHTML = `
