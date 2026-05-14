@@ -69,7 +69,9 @@ const state = {
 
 //اربط مع API
 // غيّر الرابط حسب رابط الـ API عندك من Visual Studio
-const API_BASE_URL = "http://localhost:5155";
+//const API_BASE_URL = "http://localhost:5155";
+
+const API_BASE_URL = "http://mousegame.runasp.net/api/results";
 
 async function saveTrainingResultToApi(resultPayload) {
   const response = await fetch(`${API_BASE_URL}/api/results/save`, {
@@ -143,6 +145,7 @@ async function saveResultAndShowStatus(
   }
 }
 // نهاية الربط
+// mousegame
 
 function getDifficultySettings() {
   const settings = {
