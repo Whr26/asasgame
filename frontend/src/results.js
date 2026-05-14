@@ -329,7 +329,7 @@ async function loadResults() {
     console.error(error);
 
     status.textContent =
-      "حدث خطأ أثناء تحميل النتائج. تأكد أن الـ API يعمل والرابط صحيح.711";
+      "حدث خطأ أثناء تحميل النتائج. تأكد أن الـ API يعمل والرابط صحيح.721";
     status.className = "text-red-600 font-bold";
 
     tableBody.innerHTML = `
