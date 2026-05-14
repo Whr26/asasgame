@@ -134,11 +134,10 @@ async function saveResultAndShowStatus(
     console.error("Save result error:", error);
 
     if (statusElement) {
-
-        statusElement.textContent =
+      statusElement.textContent =
         "لم يتم حفظ النتيجة , يبدو انك غير متصل بالانترنت";
-    //   statusElement.textContent =
-    //     "لم يتم حفظ النتيجة. تأكد أن الـ API يعمل وأن الرابط صحيح.";
+      //   statusElement.textContent =
+      //     "لم يتم حفظ النتيجة. تأكد أن الـ API يعمل وأن الرابط صحيح.";
       statusElement.className = "text-red-600 font-bold mb-6";
     }
   }
@@ -457,6 +456,7 @@ function showMobileAlert() {
 }
 
 //disabled
+//oklch(85.2% 0.199 91.936)
 function renderHome() {
   app.innerHTML = `
     <section class="min-h-screen px-4 py-8">
@@ -464,8 +464,9 @@ function renderHome() {
         <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
 
           <div class="bg-gradient-to-l from-blue-950 via-blue-900 to-sky-700 text-white p-8 md:p-10">
+          <h1 class="text-3xl md:text-4xl font-bold mb-4 text-lime-200 text-center">أساس <span class="text-yellow-400"> للصحة والسلامة المهنية </span> للتدريب</h1>
             <p class="text-sm md:text-base opacity-90 mb-3">لعبة تعليمية  </p>
-            <h1 class="text-3xl md:text-5xl font-bold mb-4">أتقن استخدام الماوس</h1>
+            <h2 class="text-3xl md:text-5xl font-bold mb-4">أتقن استخدام الماوس</h2>
             <p class="text-lg md:text-xl leading-9 max-w-4xl">
               تدريب عملي للكبار يساعد المتدرب على تعلم مهارات الماوس الأساسية خطوة بخطوة، مع إمكانية التدريب الكامل أو اختيار مهارة محددة.
             </p>
@@ -574,6 +575,14 @@ function renderHome() {
                   
                   </div>
                 </div>
+
+
+
+            <h3 class="text-3xl md:text-2xl font-bold mb-4 text-center mt-8"> برمجة  <a href="../../index.html"> أساس <span class="text-yellow-400"> تك</span></a> 2026</h3>
+
+
+              
+
               </div>
 
             </div>
@@ -1580,7 +1589,6 @@ function renderFinalChallenge(stage) {
   updateFinalStepsUi();
 }
 
-
 function formatDuration(totalSeconds) {
   if (totalSeconds < 60) {
     return `${totalSeconds} ثانية`;
@@ -1595,7 +1603,6 @@ function formatDuration(totalSeconds) {
 
   return `${minutes} دقيقة و ${seconds} ثانية`;
 }
-
 
 //المدة
 function renderSingleStageResult() {
@@ -1622,7 +1629,9 @@ function renderSingleStageResult() {
         </h1>
 
         <p class="text-slate-600 text-lg mb-8 leading-8">
-          أحسنت. تم إكمال تدريب: <span class="font-bold text-slate-900">${stage.title}</span>
+          أحسنت. تم إكمال تدريب: <span class="font-bold text-slate-900">${
+            stage.title
+          }</span>
         </p>
 
         <div class="grid md:grid-cols-3 gap-4 mb-8">
