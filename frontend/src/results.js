@@ -2,7 +2,7 @@ const app = document.getElementById("results-app");
 
 // غيّر الرابط حسب رابط الـ API عندك من Visual Studio
 // const API_BASE_URL = "http://localhost:5155";
-const API_BASE_URL = "http://mousegame.runasp.net/api/results";
+const API_BASE_URL = "http://mousegame.runasp.net";
 
 
 // كلمة مرور بسيطة من 4 أرقام
