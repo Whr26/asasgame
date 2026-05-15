@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/backend/:path*",
+      "destination": "http://mousegame.runasp.net/api/:path*"
+    }
+  ]
+}

@@ -2,7 +2,8 @@ const app = document.getElementById("results-app");
 
 // غيّر الرابط حسب رابط الـ API عندك من Visual Studio
 // const API_BASE_URL = "http://localhost:5155";
-const API_BASE_URL = "http://mousegame.runasp.net";
+// const API_BASE_URL = "http://mousegame.runasp.net";
+const API_BASE_URL = "/backend";
 
 
 // كلمة مرور بسيطة من 4 أرقام
@@ -296,6 +297,7 @@ function renderStatsSkeleton() {
   `;
 }
 
+// console.log("Loading results from API...");
 async function loadResults() {
   const status = document.getElementById("table-status");
   const tableBody = document.getElementById("results-table-body");
@@ -312,11 +314,13 @@ async function loadResults() {
       </tr>
     `;
 
-    const response = await fetch(`${API_BASE_URL}/api/results?take=2000`);
+    const response = await fetch(`${API_BASE_URL}/results?take=2000`);
     console.log("API response status:");
+    console.log("API response status:", response);
 
-    if (!response.ok) {
-      throw new Error("فشل تحميل النتائج من API");
+
+     if (!response.ok) {
+      throw new Error(`HTTP Error: ${response.status}`);
     }
 
     allResults = await response.json();
@@ -326,7 +330,7 @@ async function loadResults() {
     renderResultsTable();
     updateStatus();
   } catch (error) {
-    console.error(error);
+    console.error("Error loading results:", error);
 
     status.textContent =
       "حدث خطأ أثناء تحميل النتائج. تأكد أن الـ API يعمل والرابط صحيح.721";
@@ -538,7 +542,7 @@ async function deleteResult(id) {
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/results/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/results/${id}`, {
       method: "DELETE",
     });
 
